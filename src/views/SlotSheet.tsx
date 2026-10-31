@@ -17,6 +17,7 @@ import {
 } from '../domain/plan'
 import type { Rezept, SlotId } from '../domain/typen'
 import { WarnIcon } from '../ui/Icons'
+import { RezeptBild } from '../ui/RezeptBild'
 import { navigieren } from '../ui/router'
 import { Sheet } from '../ui/Sheet'
 import { Stepper } from '../ui/Stepper'
@@ -70,7 +71,8 @@ function RezeptWahl({ slot, onFertig }: { slot: SlotId; onFertig: () => void }) 
           <input className="eingabe" type="search" placeholder="Rezept suchen" value={suche} onChange={(e) => setSuche(e.target.value)} />
           <div className="liste">
             {treffer.map((rezept) => (
-              <button key={rezept.id} className="listen-knopf" onClick={() => waehlen(rezept)}>
+              <button key={rezept.id} className="listen-knopf rezept-knopf" onClick={() => waehlen(rezept)}>
+                <RezeptBild rezept={rezept} />
                 {rezept.name}
               </button>
             ))}
