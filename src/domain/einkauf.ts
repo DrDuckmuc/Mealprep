@@ -48,3 +48,11 @@ export function nachKategorie(eintraege: ListenEintrag[]): ListenGruppe[] {
     eintraege: eintraege.filter((e) => e.kategorie === kategorie).sort((a, b) => a.name.localeCompare(b.name, 'de')),
   })).filter((gruppe) => gruppe.eintraege.length > 0)
 }
+
+/** Text zum Teilen: nur die offenen Einträge, denn nur die muss noch jemand kaufen. */
+export function listeAlsText(titel: string, eintraege: ListenEintrag[]): string {
+  const gruppen = nachKategorie(eintraege.filter((e) => !e.abgehakt)).map((gruppe) =>
+    [gruppe.kategorie, ...gruppe.eintraege.map((e) => `- ${e.mengeText ? `${e.mengeText} ` : ''}${e.name}`)].join('\n'),
+  )
+  return [titel, ...gruppen].join('\n\n')
+}

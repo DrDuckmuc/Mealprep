@@ -1,8 +1,9 @@
 import { useMemo, useState, type FormEvent } from 'react'
 import { useAppDaten } from '../data/AppDaten'
 import { bedarfAusPlan } from '../domain/aggregation'
-import { listenEintraege, nachKategorie, type ListenEintrag } from '../domain/einkauf'
+import { listeAlsText, listenEintraege, nachKategorie, type ListenEintrag } from '../domain/einkauf'
 import { rateKategorie } from '../domain/kategorien'
+import { wocheLabel } from '../domain/woche'
 import { KreuzIcon } from '../ui/Icons'
 import { Sheet } from '../ui/Sheet'
 import { WochenKopf } from '../ui/WochenKopf'
@@ -73,6 +74,7 @@ export function Einkauf() {
   const [nurOffene, setNurOffene] = useState(false)
   const [neu, setNeu] = useState('')
   const [vorratOffen, setVorratOffen] = useState(false)
+  const [meldung, setMeldung] = useState('')
 
   const bedarf = useMemo(() => bedarfAusPlan(plan, rezepteNachId, vorrat), [plan, rezepteNachId, vorrat])
   const eintraege = useMemo(() => listenEintraege(bedarf.posten, einkauf), [bedarf, einkauf])
@@ -85,6 +87,26 @@ export function Einkauf() {
     if (!text) return
     speicher.manuellSetzen(wocheId, { id: speicher.neueId(), text, kategorie: rateKategorie(text), abgehakt: false })
     setNeu('')
+  }
+
+  const titel = `Einkauf ${wocheLabel(wocheId)}`
+
+  async function kopieren() {
+    try {
+      await navigator.clipboard.writeText(listeAlsText(titel, eintraege))
+      setMeldung('Offene Einträge kopiert.')
+    } catch {
+      setMeldung('Kopieren hat nicht geklappt.')
+    }
+  }
+
+  async function teilen() {
+    try {
+      await navigator.share({ title: titel, text: listeAlsText(titel, eintraege) })
+    } catch (e) {
+      // AbortError heißt nur, dass das Teilen-Menü geschlossen wurde.
+      if ((e as Error).name !== 'AbortError') setMeldung('Teilen hat nicht geklappt.')
+    }
   }
 
   return (
@@ -122,6 +144,13 @@ export function Einkauf() {
       )}
 
       {bedarf.ausVorrat.length > 0 && <p className="gedaempft klein-text">Aus dem Vorrat, nicht auf der Liste: {bedarf.ausVorrat.join(', ')}</p>}
+      {offen.length > 0 && (
+        <div className="knopf-zeile">
+          {'share' in navigator && <button className="knopf" onClick={teilen}>Teilen</button>}
+          <button className="knopf" onClick={kopieren}>Kopieren</button>
+        </div>
+      )}
+      {meldung && <p className="gedaempft mitte klein-text" role="status">{meldung}</p>}
       <button className="knopf breit" onClick={() => setVorratOffen(true)}>Vorrat verwalten</button>
       {vorratOffen && <VorratSheet onSchliessen={() => setVorratOffen(false)} />}
     </main>

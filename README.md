@@ -117,6 +117,7 @@ Offline verfügbar ist, was das Gerät schon einmal geladen hat: alle Rezepte un
 - **Einkaufsliste:** Sie wird nicht gespeichert, sondern aus Plan, Rezepten und Vorrat berechnet. Gespeichert werden nur Haken und manuelle Einträge. Steigt der Bedarf nach dem Abhaken, ist nur die Differenz wieder offen.
 - **Mengen:** Stückweise Kaufbares wird aufgerundet, aus 1,5 Zwiebeln werden 2. Unterschiedliche Einheiten bleiben getrennt, zum Beispiel 1 Bund und 20 g Petersilie.
 - **Vorrat:** Trifft auch Wortenden, „Öl“ deckt also „Olivenöl“ ab. Was ausgefiltert wurde, steht unten auf der Liste.
+- **Liste teilen:** *Kopieren* und *Teilen* geben nur die offenen Einträge als Text aus. Bei gestiegenem Bedarf steht dort nur die fehlende Menge. *Teilen* erscheint nur, wenn der Browser es unterstützt.
 
 ## Datenmodell
 
@@ -129,7 +130,6 @@ users/{uid}/meta/vorrat           eintraege[]
 
 Die Logik liegt getestet in `src/domain`. `src/data` kapselt den Speicher hinter dem Interface `Speicher` (Firestore oder lokal im Demo-Modus).
 
-## Phase 2 (noch nicht umgesetzt)
+## Phase 2 (noch offen)
 
 - **Rezept-Import per Link:** Ein Cloudflare Worker liest das schema.org/Recipe-JSON-LD als CORS-Proxy. Die Zutaten laufen danach durch `parseZutaten` und landen im bestehenden Formular.
-- **Liste teilen:** `listenEintraege` liefert schon alle Texte, es fehlt nur der Knopf.

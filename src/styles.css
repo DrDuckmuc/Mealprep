@@ -189,6 +189,10 @@ main {
   padding: 24px 0;
 }
 
+.mitte.klein-text {
+  padding: 8px 0 0;
+}
+
 .klein-text {
   font-size: 0.875rem;
 }
@@ -238,6 +242,16 @@ main {
 
 .knopf:disabled {
   opacity: 0.5;
+}
+
+.knopf-zeile {
+  display: flex;
+  gap: 8px;
+  margin-top: 8px;
+}
+
+.knopf-zeile .knopf {
+  flex: 1;
 }
 
 .icon-knopf {
