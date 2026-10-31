@@ -595,6 +595,15 @@ input[type='checkbox'] {
   font-weight: 650;
 }
 
+.titel-bild {
+  display: block;
+  width: 100%;
+  aspect-ratio: 16 / 9;
+  margin: 8px 0 12px;
+  border-radius: var(--radius);
+  object-fit: cover;
+}
+
 .bild-feld {
   display: flex;
   align-items: center;
