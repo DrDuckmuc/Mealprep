@@ -1,14 +1,28 @@
 import { TAGE, type Kocheintrag, type Rezept, type SlotId, type SlotInhalt, type Tag, type Wochenplan } from './typen'
 
-// Chronologisch. Der Sonntag vor der Woche hat nur einen Abend-Slot.
+export const VORKOCH_TAGE: Tag[] = ['sa', 'so']
+
+// Chronologisch. Vorkoch-Tage haben nur einen Abend und können mehrere Kocheinträge halten.
 export const SLOTS: SlotId[] = TAGE.flatMap((tag): SlotId[] =>
-  tag === 'so' ? ['so-abend'] : [`${tag}-mittag`, `${tag}-abend`],
+  VORKOCH_TAGE.includes(tag) ? [`${tag}-abend`] : [`${tag}-mittag`, `${tag}-abend`],
 )
 
-export const TAG_NAMEN: Record<Tag, string> = { so: 'Sonntag', mo: 'Montag', di: 'Dienstag', mi: 'Mittwoch', do: 'Donnerstag', fr: 'Freitag' }
+export const TAG_NAMEN: Record<Tag, string> = {
+  sa: 'Samstag',
+  so: 'Sonntag',
+  mo: 'Montag',
+  di: 'Dienstag',
+  mi: 'Mittwoch',
+  do: 'Donnerstag',
+  fr: 'Freitag',
+}
 
 export function slotTag(slot: SlotId): Tag {
   return slot.split('-')[0] as Tag
+}
+
+export function istVorkochSlot(slot: SlotId): boolean {
+  return VORKOCH_TAGE.includes(slotTag(slot))
 }
 
 export function slotLabel(slot: SlotId): string {
@@ -25,11 +39,15 @@ export function istLeer(plan: Wochenplan): boolean {
   return plan.kocheintraege.length === 0 && Object.keys(plan.slots).length === 0
 }
 
-/** Der Mittag nach einem Abend; freitags gibt es keinen Slot mehr. */
+/** Der Mittag nach einem Abend; freitags und samstags gibt es keinen solchen Slot. */
 export function folgeMittag(slot: SlotId): SlotId | null {
   if (!slot.endsWith('-abend')) return null
-  const folge = TAGE[TAGE.indexOf(slotTag(slot)) + 1]
-  return folge ? `${folge}-mittag` : null
+  const folge = `${TAGE[TAGE.indexOf(slotTag(slot)) + 1]}-mittag` as SlotId
+  return SLOTS.includes(folge) ? folge : null
+}
+
+export function kocheintraegeAm(plan: Wochenplan, tag: Tag): Kocheintrag[] {
+  return plan.kocheintraege.filter((e) => slotTag(e.kochSlot) === tag)
 }
 
 export function findeEintrag(plan: Wochenplan, kochId: string): Kocheintrag | undefined {
@@ -59,7 +77,8 @@ interface KochenOptionen {
 export function kochenEintragen(plan: Wochenplan, { id, rezept, slot, portionen, mitFolgeMittag }: KochenOptionen): Wochenplan {
   const eintrag: Kocheintrag = { id, rezeptId: rezept.id, rezeptName: rezept.name, kochSlot: slot, portionen }
   const inhalt: SlotInhalt = { art: 'kochen', kochId: id }
-  let neu = mitSlot({ ...plan, kocheintraege: [...plan.kocheintraege, eintrag] }, slot, inhalt)
+  let neu: Wochenplan = { ...plan, kocheintraege: [...plan.kocheintraege, eintrag] }
+  if (!istVorkochSlot(slot)) neu = mitSlot(neu, slot, inhalt)
   const folge = mitFolgeMittag ? folgeMittag(slot) : null
   if (folge && !plan.slots[folge]) neu = mitSlot(neu, folge, inhalt)
   return neu
@@ -73,16 +92,21 @@ export function textEintragen(plan: Wochenplan, slot: SlotId, text: string): Woc
   return mitSlot(plan, slot, { art: 'text', text })
 }
 
+export function kocheintragLoeschen(plan: Wochenplan, kochId: string): Wochenplan {
+  const slots = { ...plan.slots }
+  for (const verknuepft of slotsVon(plan, kochId)) delete slots[verknuepft]
+  return { kocheintraege: plan.kocheintraege.filter((e) => e.id !== kochId), slots }
+}
+
 /** Leert einen Slot. Im Koch-Slot verschwindet der ganze Kocheintrag samt Resten. */
 export function slotLeeren(plan: Wochenplan, slot: SlotId): Wochenplan {
   const inhalt = plan.slots[slot]
   const eintrag = inhalt?.art === 'kochen' ? findeEintrag(plan, inhalt.kochId) : undefined
+  if (eintrag?.kochSlot === slot) return kocheintragLoeschen(plan, eintrag.id)
+
   const slots = { ...plan.slots }
   delete slots[slot]
-  if (!eintrag || eintrag.kochSlot !== slot) return { ...plan, slots }
-
-  for (const verknuepft of slotsVon(plan, eintrag.id)) delete slots[verknuepft]
-  return { kocheintraege: plan.kocheintraege.filter((e) => e.id !== eintrag.id), slots }
+  return { ...plan, slots }
 }
 
 export function portionenSetzen(plan: Wochenplan, kochId: string, portionen: number): Wochenplan {

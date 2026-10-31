@@ -1,7 +1,7 @@
 import type { Tag } from './typen'
 
 const TAG_MS = 86_400_000
-const TAG_OFFSET: Record<Tag, number> = { so: -1, mo: 0, di: 1, mi: 2, do: 3, fr: 4 }
+const TAG_OFFSET: Record<Tag, number> = { sa: -2, so: -1, mo: 0, di: 1, mi: 2, do: 3, fr: 4 }
 
 function ersterDonnerstag(jahr: number): number {
   const jan4 = Date.UTC(jahr, 0, 4)

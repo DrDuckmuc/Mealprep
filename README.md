@@ -99,6 +99,18 @@ Die App liegt dann unter **https://drduckmuc.github.io/Mealprep/**. Groß- und K
 
 Die installierte App teilt ihren Speicher mit Chrome, die Anmeldung gilt also auch dort. Musst du dich in der installierten App neu anmelden und das Google-Fenster hängt oder schließt sich ohne Ergebnis, tippe auf **In Chrome anmelden**, melde dich dort an und öffne die App danach wieder.
 
+### 10. Google Kalender freischalten (optional)
+
+Einmalig für den Knopf *In Google Kalender übertragen*. Dein Firebase-Projekt ist zugleich ein Google-Cloud-Projekt, du musst es dort nur auswählen.
+
+1. Auf [console.cloud.google.com](https://console.cloud.google.com) oben dein Firebase-Projekt wählen.
+2. [Google Calendar API](https://console.cloud.google.com/apis/library/calendar-json.googleapis.com) öffnen und **Aktivieren** klicken.
+3. *Google Auth Platform → Zielgruppe*: Steht der Status auf *Testen*, deine Gmail-Adresse unter *Testnutzer* eintragen.
+4. *Google Auth Platform → Datenzugriff → Bereiche hinzufügen*: nach `calendar.events` suchen, auswählen und speichern.
+5. In der App auf den Knopf tippen. Google warnt einmalig „Diese App wurde nicht überprüft“. Bei deiner eigenen App ist das normal: *Erweitert → Weiter zu …* und den Haken für den Kalender setzen.
+
+Ohne Server gilt die Freigabe jeweils etwa eine Stunde. Danach öffnet sich beim Übertragen eventuell kurz wieder das Google-Fenster.
+
 ### Offline-Test
 
 1. App online öffnen, Tab *Einkauf* einmal ansehen.
@@ -112,8 +124,9 @@ Offline verfügbar ist, was das Gerät schon einmal geladen hat: alle Rezepte un
 
 - **Kochen:** Rezept auf einen Abend legen. Das belegt Abend und nächsten Mittag mit 2 Portionen. Mit mehr Portionen lassen sich über den Reiter *Vorgekocht* weitere Slots belegen.
 - **Haltbarkeit:** Liegt die letzte Portion weiter weg als `kuehlschrankTage`, zeigt der Slot eine Warnung mit „einfrieren“ oder „nicht einfrierbar“.
-- **Sonntag:** Gemeint ist der Sonntag vor dem Montag der Woche. Am Wochenende öffnet die App automatisch die kommende Woche.
+- **Wochenende:** Samstag und Sonntag sind das Wochenende vor dem Montag der Woche und dienen als Vorkoch-Tage: Dort gehen beliebig viele Rezepte pro Tag. Die Portionen verteilst du danach über den Reiter *Vorgekocht* auf Mo–Fr. Am Wochenende öffnet die App automatisch die kommende Woche.
 - **Freitag:** Es gibt keinen Folge-Slot, weil der Plan bei Freitagabend endet.
+- **Google Kalender:** Der Knopf im Tab *Woche* trägt jeden Abend, an dem gekocht wird, als Termin ein: 19–20 Uhr, Farbe Salbei, Erinnerung 30 Minuten vorher. Mehrere Rezepte eines Abends teilen sich einen Termin. Mittags, Reste und Freitext erzeugen keinen Termin. Erneutes Tippen gleicht die Woche ab: Änderungen werden übernommen, entfallene Abende gelöscht. Der Abgleich läuft nur auf Knopfdruck und nur online.
 - **Einkaufsliste:** Sie wird nicht gespeichert, sondern aus Plan, Rezepten und Vorrat berechnet. Gespeichert werden nur Haken und manuelle Einträge. Steigt der Bedarf nach dem Abhaken, ist nur die Differenz wieder offen.
 - **Mengen:** Stückweise Kaufbares wird aufgerundet, aus 1,5 Zwiebeln werden 2. Unterschiedliche Einheiten bleiben getrennt, zum Beispiel 1 Bund und 20 g Petersilie.
 - **Vorrat:** Trifft auch Wortenden, „Öl“ deckt also „Olivenöl“ ab. Was ausgefiltert wurde, steht unten auf der Liste.

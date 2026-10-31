@@ -27,8 +27,8 @@ export interface Rezept {
   notizen: string
 }
 
-// 'so' ist der Sonntag VOR dem Montag der Woche: dort wird für Montagmittag gekocht.
-export const TAGE = ['so', 'mo', 'di', 'mi', 'do', 'fr'] as const
+// 'sa' und 'so' sind das Wochenende VOR dem Montag der Woche: die Vorkoch-Tage.
+export const TAGE = ['sa', 'so', 'mo', 'di', 'mi', 'do', 'fr'] as const
 export type Tag = (typeof TAGE)[number]
 export type Mahlzeit = 'mittag' | 'abend'
 export type SlotId = `${Tag}-${Mahlzeit}`

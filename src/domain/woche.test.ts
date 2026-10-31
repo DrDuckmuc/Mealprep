@@ -33,7 +33,8 @@ describe('planungsWoche', () => {
 })
 
 describe('Datumsanzeige', () => {
-  it('liefert den Sonntag vor dem Montag', () => {
+  it('liefert das Wochenende vor dem Montag', () => {
+    expect(tagDatum('2026-W45', 'sa')).toEqual(new Date(2026, 9, 31))
     expect(tagDatum('2026-W45', 'so')).toEqual(new Date(2026, 10, 1))
     expect(tagDatum('2026-W45', 'fr')).toEqual(new Date(2026, 10, 6))
   })

@@ -2,6 +2,8 @@ import { describe, expect, it } from 'vitest'
 import {
   folgeMittag,
   haltbarkeitsWarnung,
+  kocheintraegeAm,
+  kocheintragLoeschen,
   kochenEintragen,
   leererPlan,
   planKopieren,
@@ -40,8 +42,32 @@ describe('kochenEintragen', () => {
     expect(folgeMittag('so-abend')).toBe('mo-mittag')
   })
 
-  it('hat freitags keinen Folge-Slot', () => {
+  it('hat freitags und samstags keinen Folge-Slot', () => {
     expect(folgeMittag('fr-abend')).toBeNull()
+    expect(folgeMittag('sa-abend')).toBeNull()
+  })
+
+  it('erlaubt am Wochenende mehrere Kocheinträge pro Tag', () => {
+    let plan = kochenEintragen(leererPlan(), { id: 'k1', rezept, slot: 'sa-abend', portionen: 4, mitFolgeMittag: false })
+    plan = kochenEintragen(plan, { id: 'k2', rezept, slot: 'sa-abend', portionen: 2, mitFolgeMittag: false })
+    plan = kochenEintragen(plan, { id: 'k3', rezept, slot: 'so-abend', portionen: 2, mitFolgeMittag: true })
+    expect(kocheintraegeAm(plan, 'sa').map((e) => e.id)).toEqual(['k1', 'k2'])
+    expect(plan.slots['sa-abend']).toBeUndefined()
+    expect(plan.slots['mo-mittag']).toEqual({ art: 'kochen', kochId: 'k3' })
+  })
+
+  it('zählt Vorgekochtes als frei und warnt bei langer Lagerung', () => {
+    const plan = kochenEintragen(leererPlan(), { id: 'k1', rezept, slot: 'sa-abend', portionen: 4, mitFolgeMittag: false })
+    expect(reste(plan, 'mo-mittag')).toHaveLength(1)
+    const verplant = resteEintragen(plan, 'mi-abend', 'k1')
+    expect(verplantePortionen(verplant, 'k1')).toBe(1)
+    expect(haltbarkeitsWarnung(verplant, verplant.kocheintraege[0], rezept)).toContain('nach 4 Tagen')
+  })
+
+  it('löscht einen Vorkoch-Eintrag samt verplanter Portionen', () => {
+    let plan = kochenEintragen(leererPlan(), { id: 'k1', rezept, slot: 'sa-abend', portionen: 4, mitFolgeMittag: false })
+    plan = resteEintragen(plan, 'mo-mittag', 'k1')
+    expect(kocheintragLoeschen(plan, 'k1')).toEqual(leererPlan())
   })
 
   it('überschreibt einen belegten Mittag nicht', () => {

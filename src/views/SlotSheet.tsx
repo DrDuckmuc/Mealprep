@@ -4,6 +4,8 @@ import {
   findeEintrag,
   folgeMittag,
   haltbarkeitsWarnung,
+  istVorkochSlot,
+  kocheintragLoeschen,
   kochenEintragen,
   portionenSetzen,
   reste,
@@ -25,13 +27,14 @@ function RezeptWahl({ slot, onFertig }: { slot: SlotId; onFertig: () => void }) 
   const { plan, planAendern, rezepte, speicher } = useAppDaten()
   const folge = folgeMittag(slot)
   const folgeFrei = folge !== null && !plan.slots[folge]
+  const vorkochen = istVorkochSlot(slot)
   const [mitFolge, setMitFolge] = useState(folgeFrei)
-  const [portionen, setPortionen] = useState(folgeFrei ? 2 : 1)
+  const [portionen, setPortionen] = useState(folgeFrei || vorkochen ? 2 : 1)
   const [suche, setSuche] = useState('')
 
   function folgeUmschalten(aktiv: boolean) {
     setMitFolge(aktiv)
-    setPortionen(aktiv ? 2 : 1)
+    if (!vorkochen) setPortionen(aktiv ? 2 : 1)
   }
 
   function waehlen(rezept: Rezept) {
@@ -133,31 +136,39 @@ function TextWahl({ slot, onFertig }: { slot: SlotId; onFertig: () => void }) {
   )
 }
 
-function SlotDetails({ slot, onFertig }: { slot: SlotId; onFertig: () => void }) {
+function SlotDetails({ slot, kochId, onFertig }: { slot: SlotId; kochId?: string; onFertig: () => void }) {
   const { plan, planAendern, rezepteNachId } = useAppDaten()
   const inhalt = plan.slots[slot]
-  if (!inhalt) return null
 
-  const leeren = () => {
-    planAendern((p) => slotLeeren(p, slot))
-    onFertig()
-  }
-
-  if (inhalt.art === 'text') {
+  if (!kochId && inhalt?.art === 'text') {
     return (
       <>
         <p>{inhalt.text}</p>
-        <button className="knopf gefahr breit" onClick={leeren}>Slot leeren</button>
+        <button
+          className="knopf gefahr breit"
+          onClick={() => {
+            planAendern((p) => slotLeeren(p, slot))
+            onFertig()
+          }}
+        >
+          Slot leeren
+        </button>
       </>
     )
   }
 
-  const eintrag = findeEintrag(plan, inhalt.kochId)
+  const id = kochId ?? (inhalt?.art === 'kochen' ? inhalt.kochId : undefined)
+  const eintrag = id ? findeEintrag(plan, id) : undefined
   if (!eintrag) return null
   const rezept = rezepteNachId.get(eintrag.rezeptId)
   const warnung = haltbarkeitsWarnung(plan, eintrag, rezept)
   const verplant = verplantePortionen(plan, eintrag.id)
   const istKochSlot = eintrag.kochSlot === slot
+
+  const leeren = () => {
+    planAendern((p) => (istKochSlot ? kocheintragLoeschen(p, eintrag.id) : slotLeeren(p, slot)))
+    onFertig()
+  }
 
   return (
     <>
@@ -185,16 +196,18 @@ function SlotDetails({ slot, onFertig }: { slot: SlotId; onFertig: () => void })
   )
 }
 
-export function SlotSheet({ slot, onSchliessen }: { slot: SlotId; onSchliessen: () => void }) {
+export function SlotSheet({ slot, kochId, onSchliessen }: { slot: SlotId; kochId?: string; onSchliessen: () => void }) {
   const { plan } = useAppDaten()
   const [reiter, setReiter] = useState<Reiter>('rezept')
   // Nach dem Eintragen ist der Slot belegt; das Sheet schließt dann, statt die Details zu zeigen.
-  const [warBelegt] = useState(Boolean(plan.slots[slot]))
+  const [zeigtDetails] = useState(Boolean(kochId) || (!istVorkochSlot(slot) && Boolean(plan.slots[slot])) || plan.slots[slot]?.art === 'text')
 
   return (
     <Sheet titel={slotLabel(slot)} onSchliessen={onSchliessen}>
-      {warBelegt ? (
-        <SlotDetails slot={slot} onFertig={onSchliessen} />
+      {zeigtDetails ? (
+        <SlotDetails slot={slot} kochId={kochId} onFertig={onSchliessen} />
+      ) : istVorkochSlot(slot) ? (
+        <RezeptWahl slot={slot} onFertig={onSchliessen} />
       ) : (
         <>
           <div className="segmente" role="tablist">

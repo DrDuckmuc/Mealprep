@@ -63,7 +63,7 @@ function Tab({ pfad, aktiv, label, children }: { pfad: string; aktiv: boolean; l
   )
 }
 
-function Ansicht({ route }: { route: string }) {
+function Ansicht({ route, user }: { route: string; user: User | null }) {
   const { geladen } = useAppDaten()
   const [bereich, id, aktion] = route.split('/')
   // Vor dem Laden wäre das Formular leer, und Speichern legte ein zweites Rezept an.
@@ -73,7 +73,7 @@ function Ansicht({ route }: { route: string }) {
   if (bereich === 'rezepte' && id) return <RezeptDetail key={id} id={id} />
   if (bereich === 'rezepte') return <RezeptListe />
   if (bereich === 'einkauf') return <Einkauf />
-  return <Woche />
+  return <Woche user={user} />
 }
 
 function Shell({ user }: { user: User | null }) {
@@ -94,7 +94,7 @@ function Shell({ user }: { user: User | null }) {
         </button>
       </header>
       {fehler ? <p className="banner">{fehlerText(fehler, user?.uid)}</p> : null}
-      <Ansicht route={route} />
+      <Ansicht route={route} user={user} />
       <nav className="tabs">
         <Tab pfad="woche" aktiv={bereich === 'woche'} label="Woche"><KalenderIcon /></Tab>
         <Tab pfad="rezepte" aktiv={bereich === 'rezepte'} label="Rezepte"><BuchIcon /></Tab>
