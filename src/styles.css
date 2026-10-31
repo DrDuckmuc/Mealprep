@@ -576,6 +576,31 @@ input[type='checkbox'] {
 }
 
 /* Rezepte */
+.rezept-knopf {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
+.rezept-bild {
+  display: grid;
+  place-items: center;
+  flex: none;
+  width: 44px;
+  height: 44px;
+  border-radius: 50%;
+  object-fit: cover;
+  background: var(--akzent-weich);
+  color: var(--akzent);
+  font-weight: 650;
+}
+
+.bild-feld {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+}
+
 .zutaten {
   list-style: none;
   margin: 0 0 12px;

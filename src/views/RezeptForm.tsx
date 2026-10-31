@@ -1,8 +1,10 @@
-import { useState, type FormEvent } from 'react'
+import { useRef, useState, type ChangeEvent, type FormEvent } from 'react'
 import { useAppDaten } from '../data/AppDaten'
 import { parseRezepttext } from '../domain/parser'
 import { KATEGORIEN, type Kategorie, type Rezept, type Zutat } from '../domain/typen'
+import { bildVerkleinern } from '../ui/bild'
 import { KreuzIcon, PlusIcon } from '../ui/Icons'
+import { RezeptBild } from '../ui/RezeptBild'
 import { navigieren } from '../ui/router'
 import { Stepper } from '../ui/Stepper'
 
@@ -16,6 +18,7 @@ const leeresRezept = (id: string): Rezept => ({
   kuehlschrankTage: 3,
   einfrierbar: false,
   notizen: '',
+  bild: null,
 })
 
 function ZutatZeile({ zutat, onAendern, onLoeschen }: { zutat: Zutat; onAendern: (z: Zutat) => void; onLoeschen: () => void }) {
@@ -54,8 +57,23 @@ export function RezeptForm({ id }: { id?: string }) {
   const [einfuegen, setEinfuegen] = useState('')
   // Neue Schlüssel nach dem Einfügen setzen die unkontrollierten Mengenfelder zurück.
   const [zeilenStand, setZeilenStand] = useState(0)
+  const [bildFehler, setBildFehler] = useState(false)
+  const bildAuswahl = useRef<HTMLInputElement>(null)
 
   const aendern = (teil: Partial<Rezept>) => setRezept((r) => ({ ...r, ...teil }))
+
+  async function bildGewaehlt(e: ChangeEvent<HTMLInputElement>) {
+    const datei = e.target.files?.[0]
+    // Sonst löst dieselbe Datei beim zweiten Wählen kein change-Ereignis aus.
+    e.target.value = ''
+    if (!datei) return
+    try {
+      aendern({ bild: await bildVerkleinern(datei) })
+      setBildFehler(false)
+    } catch {
+      setBildFehler(true)
+    }
+  }
 
   function zutatenUebernehmen() {
     const { zutaten, zubereitung, portionen } = parseRezepttext(einfuegen)
@@ -94,6 +112,19 @@ export function RezeptForm({ id }: { id?: string }) {
     <main>
       <h1>{id ? 'Rezept bearbeiten' : 'Neues Rezept'}</h1>
       <form className="formular" onSubmit={speichern}>
+        <div className="bild-feld">
+          <RezeptBild rezept={rezept} />
+          <button type="button" className="knopf" onClick={() => bildAuswahl.current?.click()}>
+            {rezept.bild ? 'Bild ändern' : 'Bild hochladen'}
+          </button>
+          {rezept.bild && (
+            <button type="button" className="icon-knopf" onClick={() => aendern({ bild: null })} aria-label="Bild entfernen">
+              <KreuzIcon />
+            </button>
+          )}
+          <input ref={bildAuswahl} type="file" accept="image/*" hidden onChange={bildGewaehlt} />
+        </div>
+        {bildFehler && <p className="gedaempft">Dieses Bild konnte nicht gelesen werden.</p>}
         <label>
           Name
           <input className="eingabe" required value={rezept.name} onChange={(e) => aendern({ name: e.target.value })} />

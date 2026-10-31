@@ -25,6 +25,8 @@ export interface Rezept {
   kuehlschrankTage: number | null
   einfrierbar: boolean
   notizen: string
+  // Data-URL. null statt undefined, weil Firestore undefined ablehnt; ältere Rezepte haben das Feld nicht.
+  bild?: string | null
 }
 
 // 'sa' und 'so' sind das Wochenende VOR dem Montag der Woche: die Vorkoch-Tage.

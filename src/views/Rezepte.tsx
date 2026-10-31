@@ -4,6 +4,7 @@ import { formatMenge } from '../domain/einheiten'
 import { skaliereZutaten } from '../domain/skalierung'
 import type { Rezept } from '../domain/typen'
 import { PlusIcon } from '../ui/Icons'
+import { RezeptBild } from '../ui/RezeptBild'
 import { navigieren } from '../ui/router'
 import { Stepper } from '../ui/Stepper'
 
@@ -35,9 +36,12 @@ export function RezeptListe() {
       {rezepte.length > 0 && treffer.length === 0 && <p className="gedaempft mitte">Nichts gefunden.</p>}
       <div className="liste">
         {treffer.map((rezept) => (
-          <button key={rezept.id} className="listen-knopf" onClick={() => navigieren(`rezepte/${rezept.id}`)}>
-            {rezept.name}
-            <span className="slot-info">{haltbarkeit(rezept)}</span>
+          <button key={rezept.id} className="listen-knopf rezept-knopf" onClick={() => navigieren(`rezepte/${rezept.id}`)}>
+            <RezeptBild rezept={rezept} />
+            <span>
+              {rezept.name}
+              <span className="slot-info">{haltbarkeit(rezept)}</span>
+            </span>
           </button>
         ))}
       </div>
