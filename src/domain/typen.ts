@@ -1,0 +1,63 @@
+export const KATEGORIEN = [
+  'Obst & Gemüse',
+  'Kühlregal',
+  'Fleisch/Fisch',
+  'Trockenware',
+  'Gewürze',
+  'Sonstiges',
+] as const
+export type Kategorie = (typeof KATEGORIEN)[number]
+
+export interface Zutat {
+  menge: number | null
+  einheit: string
+  name: string
+  kategorie: Kategorie
+}
+
+export interface Rezept {
+  id: string
+  name: string
+  link: string
+  basisPortionen: number
+  zutaten: Zutat[]
+  zubereitung: string
+  kuehlschrankTage: number | null
+  einfrierbar: boolean
+  notizen: string
+}
+
+// 'so' ist der Sonntag VOR dem Montag der Woche: dort wird für Montagmittag gekocht.
+export const TAGE = ['so', 'mo', 'di', 'mi', 'do', 'fr'] as const
+export type Tag = (typeof TAGE)[number]
+export type Mahlzeit = 'mittag' | 'abend'
+export type SlotId = `${Tag}-${Mahlzeit}`
+
+export interface Kocheintrag {
+  id: string
+  rezeptId: string
+  // Falls das Rezept später gelöscht wird, bleibt der Plan lesbar.
+  rezeptName: string
+  kochSlot: SlotId
+  portionen: number
+}
+
+export type SlotInhalt = { art: 'kochen'; kochId: string } | { art: 'text'; text: string }
+
+export interface Wochenplan {
+  kocheintraege: Kocheintrag[]
+  slots: Partial<Record<SlotId, SlotInhalt>>
+}
+
+export interface ManuellerEintrag {
+  id: string
+  text: string
+  kategorie: Kategorie
+  abgehakt: boolean
+}
+
+export interface EinkaufDaten {
+  // Schlüssel → abgehakte Menge. Steigt der Bedarf später, bleibt nur die Differenz offen.
+  abgehakt: Record<string, number | null>
+  manuell: Record<string, ManuellerEintrag>
+}
