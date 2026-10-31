@@ -596,12 +596,32 @@ input[type='checkbox'] {
 }
 
 .titel-bild {
-  display: block;
-  width: 100%;
-  aspect-ratio: 16 / 9;
+  position: relative;
+  aspect-ratio: 1;
   margin: 8px 0 12px;
   border-radius: var(--radius);
+  overflow: hidden;
+}
+
+.titel-bild img {
+  display: block;
+  width: 100%;
+  height: 100%;
   object-fit: cover;
+}
+
+/* Feste Farben: Der Titel liegt auf dem Foto, nicht auf dem Theme-Hintergrund. */
+.titel-bild h1 {
+  position: absolute;
+  inset: auto 0 0;
+  margin: 0;
+  padding: 72px 16px 16px;
+  background: linear-gradient(transparent, rgb(0 0 0 / 75%));
+  color: #ffffff;
+  font-size: clamp(1.6rem, 7vw, 2.4rem);
+  font-weight: 800;
+  line-height: 1.15;
+  overflow-wrap: anywhere;
 }
 
 .bild-feld {

@@ -132,7 +132,7 @@ Offline verfügbar ist, was das Gerät schon einmal geladen hat: alle Rezepte un
 - **Vorrat:** Trifft auch Wortenden, „Öl“ deckt also „Olivenöl“ ab. Was ausgefiltert wurde, steht unten auf der Liste.
 - **Liste teilen:** *Kopieren* und *Teilen* geben nur die offenen Einträge als Text aus. Bei gestiegenem Bedarf steht dort nur die fehlende Menge. *Teilen* erscheint nur, wenn der Browser es unterstützt.
 
-- **Rezeptbild:** Im Formular lässt sich ein Bild hochladen. Es wird im Browser auf höchstens 800 px Kantenlänge verkleinert und als Data-URL im Feld `bild` des Rezepts gespeichert, also ohne Firebase Storage. Es erscheint rund in der Rezeptliste und der Rezeptauswahl im Wochenplan, ohne Bild steht dort der Anfangsbuchstabe, und groß als Titelbild in der Rezeptansicht.
+- **Rezeptbild:** Im Formular lässt sich ein Bild hochladen. Es wird im Browser auf höchstens 800 px Kantenlänge verkleinert und als Data-URL im Feld `bild` des Rezepts gespeichert, also ohne Firebase Storage. Es erscheint rund in der Rezeptliste und der Rezeptauswahl im Wochenplan, ohne Bild steht dort der Anfangsbuchstabe, und groß als quadratisches Titelbild mit dem Rezeptnamen in der Rezeptansicht.
 
 ## Datenmodell
 

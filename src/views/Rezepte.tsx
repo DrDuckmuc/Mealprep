@@ -76,8 +76,14 @@ export function RezeptDetail({ id }: { id: string }) {
   return (
     <main>
       <button className="text-knopf" onClick={() => navigieren('rezepte')}>← Alle Rezepte</button>
-      {rezept.bild && <img className="titel-bild" src={rezept.bild} alt="" />}
-      <h1>{rezept.name}</h1>
+      {rezept.bild ? (
+        <div className="titel-bild">
+          <img src={rezept.bild} alt="" />
+          <h1>{rezept.name}</h1>
+        </div>
+      ) : (
+        <h1>{rezept.name}</h1>
+      )}
       <p className="gedaempft">{haltbarkeit(rezept)}</p>
       {link && (
         <p>
