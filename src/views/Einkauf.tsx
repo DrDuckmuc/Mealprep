@@ -1,7 +1,7 @@
-import { useMemo, useState, type FormEvent } from 'react'
+import { useEffect, useMemo, useState, type FormEvent } from 'react'
 import { useAppDaten } from '../data/AppDaten'
 import { bedarfAusPlan } from '../domain/aggregation'
-import { listeAlsText, listenEintraege, nachKategorie, type ListenEintrag } from '../domain/einkauf'
+import { istAbgelaufen, listeAlsText, listenEintraege, nachKategorie, type ListenEintrag } from '../domain/einkauf'
 import { rateKategorie } from '../domain/kategorien'
 import { wocheLabel } from '../domain/woche'
 import { KreuzIcon } from '../ui/Icons'
@@ -13,7 +13,11 @@ function EintragZeile({ eintrag }: { eintrag: ListenEintrag }) {
 
   function umschalten() {
     if (eintrag.manuell) {
-      speicher.manuellSetzen(wocheId, { ...einkauf.manuell[eintrag.id], abgehakt: !eintrag.abgehakt })
+      speicher.manuellSetzen(wocheId, {
+        ...einkauf.manuell[eintrag.id],
+        abgehakt: !eintrag.abgehakt,
+        abgehaktAm: eintrag.abgehakt ? null : Date.now(),
+      })
     } else {
       speicher.abhakenSetzen(wocheId, eintrag.id, eintrag.abgehakt ? undefined : eintrag.menge)
     }
@@ -71,7 +75,7 @@ function VorratSheet({ onSchliessen }: { onSchliessen: () => void }) {
 
 export function Einkauf() {
   const { plan, rezepteNachId, vorrat, einkauf, speicher, wocheId, geladen } = useAppDaten()
-  const [nurOffene, setNurOffene] = useState(false)
+  const [nurOffene, setNurOffene] = useState(true)
   const [neu, setNeu] = useState('')
   const [vorratOffen, setVorratOffen] = useState(false)
   const [meldung, setMeldung] = useState('')
@@ -79,7 +83,13 @@ export function Einkauf() {
   const bedarf = useMemo(() => bedarfAusPlan(plan, rezepteNachId, vorrat), [plan, rezepteNachId, vorrat])
   const eintraege = useMemo(() => listenEintraege(bedarf.posten, einkauf), [bedarf, einkauf])
   const offen = eintraege.filter((e) => !e.abgehakt)
-  const erledigt = eintraege.filter((e) => e.abgehakt)
+  const jetzt = Date.now()
+  const erledigt = eintraege.filter((e) => e.abgehakt && !istAbgelaufen(e, jetzt))
+
+  // Berechnete Einträge bleiben abgehakt und werden nur ausgeblendet, sonst kämen sie als offen zurück.
+  useEffect(() => {
+    eintraege.filter((e) => e.manuell && istAbgelaufen(e, Date.now())).forEach((e) => speicher.manuellLoeschen(wocheId, e.id))
+  }, [eintraege, speicher, wocheId])
 
   function hinzufuegen(e: FormEvent) {
     e.preventDefault()

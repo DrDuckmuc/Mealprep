@@ -42,9 +42,15 @@ export function lokalerSpeicher(): Speicher {
     abhakenSetzen: (wocheId, key, menge) => {
       const daten = einkauf(wocheId)
       const abgehakt = { ...daten.abgehakt }
-      if (menge === undefined) delete abgehakt[key]
-      else abgehakt[key] = menge
-      schreiben(`einkauf/${wocheId}`, { ...daten, abgehakt })
+      const abgehaktAm = { ...daten.abgehaktAm }
+      if (menge === undefined) {
+        delete abgehakt[key]
+        delete abgehaktAm[key]
+      } else {
+        abgehakt[key] = menge
+        abgehaktAm[key] = Date.now()
+      }
+      schreiben(`einkauf/${wocheId}`, { ...daten, abgehakt, abgehaktAm })
     },
     manuellSetzen: (wocheId, eintrag) => {
       const daten = einkauf(wocheId)

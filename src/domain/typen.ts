@@ -56,10 +56,14 @@ export interface ManuellerEintrag {
   text: string
   kategorie: Kategorie
   abgehakt: boolean
+  // Millisekunden seit 1970. null statt undefined, weil Firestore undefined ablehnt.
+  abgehaktAm?: number | null
 }
 
 export interface EinkaufDaten {
   // Schlüssel → abgehakte Menge. Steigt der Bedarf später, bleibt nur die Differenz offen.
   abgehakt: Record<string, number | null>
+  // Getrennt von abgehakt, damit der Vergleich der Mengen unverändert bleibt.
+  abgehaktAm?: Record<string, number>
   manuell: Record<string, ManuellerEintrag>
 }

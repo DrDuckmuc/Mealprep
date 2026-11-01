@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { EinkaufsPosten } from './aggregation'
-import { listeAlsText, listenEintraege, nachKategorie } from './einkauf'
+import { istAbgelaufen, listeAlsText, listenEintraege, nachKategorie } from './einkauf'
 
 const posten = (menge: number | null): EinkaufsPosten => ({ key: 'nudel|g', name: 'Nudeln', menge, einheit: 'g', kategorie: 'Trockenware' })
 
@@ -23,6 +23,34 @@ describe('listenEintraege', () => {
   it('ergänzt manuelle Einträge', () => {
     const manuell = { m1: { id: 'm1', text: 'Spülmittel', kategorie: 'Sonstiges' as const, abgehakt: true } }
     expect(listenEintraege([], { abgehakt: {}, manuell })[0]).toMatchObject({ name: 'Spülmittel', manuell: true, abgehakt: true })
+  })
+})
+
+describe('istAbgelaufen', () => {
+  const TAG = 24 * 60 * 60 * 1000
+  const jetzt = 10 * TAG
+  const daten = (abgehaktAm?: number) => ({
+    abgehakt: { 'nudel|g': 500 },
+    abgehaktAm: abgehaktAm === undefined ? undefined : { 'nudel|g': abgehaktAm },
+    manuell: {},
+  })
+
+  it('läuft erst nach 2 Tagen ab', () => {
+    expect(istAbgelaufen(listenEintraege([posten(500)], daten(jetzt - 2 * TAG + 1))[0], jetzt)).toBe(false)
+    expect(istAbgelaufen(listenEintraege([posten(500)], daten(jetzt - 2 * TAG))[0], jetzt)).toBe(true)
+  })
+
+  it('wertet alte Haken ohne Zeitstempel als abgelaufen', () => {
+    expect(istAbgelaufen(listenEintraege([posten(500)], daten())[0], jetzt)).toBe(true)
+  })
+
+  it('betrifft keine offenen Einträge', () => {
+    expect(istAbgelaufen(listenEintraege([posten(800)], daten(0))[0], jetzt)).toBe(false)
+  })
+
+  it('gilt auch für manuelle Einträge', () => {
+    const manuell = { m1: { id: 'm1', text: 'Spülmittel', kategorie: 'Sonstiges' as const, abgehakt: true, abgehaktAm: jetzt - 3 * TAG } }
+    expect(istAbgelaufen(listenEintraege([], { abgehakt: {}, manuell })[0], jetzt)).toBe(true)
   })
 })
 

@@ -12,11 +12,19 @@ export interface ListenEintrag {
   // Wert, der beim Abhaken gespeichert wird.
   menge: number | null
   hinweis?: string
+  abgehaktAm?: number | null
+}
+
+const ABLAUF_MS = 2 * 24 * 60 * 60 * 1000
+
+/** Haken von vor dieser Funktion haben keinen Zeitstempel und gelten als abgelaufen. */
+export function istAbgelaufen(eintrag: ListenEintrag, jetzt: number): boolean {
+  return eintrag.abgehakt && jetzt - (eintrag.abgehaktAm ?? 0) >= ABLAUF_MS
 }
 
 export function listenEintraege(posten: EinkaufsPosten[], daten: EinkaufDaten): ListenEintrag[] {
   const generiert = posten.map((p): ListenEintrag => {
-    const basis = { id: p.key, name: p.name, kategorie: p.kategorie, manuell: false, menge: p.menge }
+    const basis = { id: p.key, name: p.name, kategorie: p.kategorie, manuell: false, menge: p.menge, abgehaktAm: daten.abgehaktAm?.[p.key] }
     const mengeText = formatMenge(p.menge, p.einheit)
     if (!(p.key in daten.abgehakt)) return { ...basis, mengeText, abgehakt: false }
 
@@ -32,7 +40,7 @@ export function listenEintraege(posten: EinkaufsPosten[], daten: EinkaufDaten): 
     return { ...basis, mengeText, abgehakt: true }
   })
   const manuell = Object.values(daten.manuell).map(
-    (m): ListenEintrag => ({ id: m.id, name: m.text, mengeText: '', kategorie: m.kategorie, abgehakt: m.abgehakt, manuell: true, menge: null }),
+    (m): ListenEintrag => ({ id: m.id, name: m.text, mengeText: '', kategorie: m.kategorie, abgehakt: m.abgehakt, manuell: true, menge: null, abgehaktAm: m.abgehaktAm }),
   )
   return [...generiert, ...manuell]
 }

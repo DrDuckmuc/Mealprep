@@ -36,7 +36,10 @@ export function firestoreSpeicher(uid: string, schreibFehler: FehlerCallback): S
     abhakenSetzen: (wocheId, key, menge) =>
       void setDoc(
         doc(einkauf, wocheId),
-        { abgehakt: { [key]: menge === undefined ? deleteField() : menge } },
+        {
+          abgehakt: { [key]: menge === undefined ? deleteField() : menge },
+          abgehaktAm: { [key]: menge === undefined ? deleteField() : Date.now() },
+        },
         { merge: true },
       ).catch(schreibFehler),
     manuellSetzen: (wocheId, eintrag) =>

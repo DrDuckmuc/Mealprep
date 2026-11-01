@@ -127,7 +127,7 @@ Offline verfügbar ist, was das Gerät schon einmal geladen hat: alle Rezepte un
 - **Wochenende:** Samstag und Sonntag sind das Wochenende vor dem Montag der Woche und dienen als Vorkoch-Tage: Dort gehen beliebig viele Rezepte pro Tag. Die Portionen verteilst du danach über den Reiter *Vorgekocht* auf Mo–Fr. Am Wochenende öffnet die App automatisch die kommende Woche.
 - **Freitag:** Es gibt keinen Folge-Slot, weil der Plan bei Freitagabend endet.
 - **Google Kalender:** Der Knopf im Tab *Woche* trägt jeden Abend, an dem gekocht wird, als Termin ein: 19–20 Uhr, Farbe Salbei, Erinnerung 30 Minuten vorher. Mehrere Rezepte eines Abends teilen sich einen Termin. Mittags, Reste und Freitext erzeugen keinen Termin. Erneutes Tippen gleicht die Woche ab: Änderungen werden übernommen, entfallene Abende gelöscht. Der Abgleich läuft nur auf Knopfdruck und nur online.
-- **Einkaufsliste:** Sie wird nicht gespeichert, sondern aus Plan, Rezepten und Vorrat berechnet. Gespeichert werden nur Haken und manuelle Einträge. Steigt der Bedarf nach dem Abhaken, ist nur die Differenz wieder offen.
+- **Einkaufsliste:** Sie wird nicht gespeichert, sondern aus Plan, Rezepten und Vorrat berechnet. Gespeichert werden nur Haken und manuelle Einträge. Steigt der Bedarf nach dem Abhaken, ist nur die Differenz wieder offen. Standardmäßig sind nur offene Einträge sichtbar. Abgehaktes verschwindet nach 2 Tagen aus *Erledigt*: Manuelle Einträge werden beim Öffnen des Tabs gelöscht, berechnete nur ausgeblendet, weil sie sonst wieder als offen erschienen.
 - **Mengen:** Stückweise Kaufbares wird aufgerundet, aus 1,5 Zwiebeln werden 2. Unterschiedliche Einheiten bleiben getrennt, zum Beispiel 1 Bund und 20 g Petersilie.
 - **Vorrat:** Trifft auch Wortenden, „Öl“ deckt also „Olivenöl“ ab. Was ausgefiltert wurde, steht unten auf der Liste.
 - **Liste teilen:** *Kopieren* und *Teilen* geben nur die offenen Einträge als Text aus. Bei gestiegenem Bedarf steht dort nur die fehlende Menge. *Teilen* erscheint nur, wenn der Browser es unterstützt.
@@ -139,7 +139,7 @@ Offline verfügbar ist, was das Gerät schon einmal geladen hat: alle Rezepte un
 ```
 users/{uid}/rezepte/{id}          Rezept
 users/{uid}/wochen/{2026-W45}     kocheintraege[], slots{ "mo-abend": … }
-users/{uid}/einkauf/{2026-W45}    abgehakt{ schluessel: menge }, manuell{ id: … }
+users/{uid}/einkauf/{2026-W45}    abgehakt{ schluessel: menge }, abgehaktAm{ schluessel: zeit }, manuell{ id: … }
 users/{uid}/meta/vorrat           eintraege[]
 ```
 
